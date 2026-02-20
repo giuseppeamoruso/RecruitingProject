@@ -1,0 +1,24 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Django
+*.log
+db.sqlite3
+media/
+
+# Environment
+.env
+.env.*
+
+# Temp files
+tmp_*.pdf
+
+# IDE
+.idea/
+.vscode/

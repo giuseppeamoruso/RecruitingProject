@@ -3,7 +3,7 @@ import uuid
 
 
 class Candidato(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # aggiungi default=uuid.uuid4
     full_name = models.TextField()
     email = models.TextField(null=True, blank=True)
     linkedin_url = models.TextField(null=True, blank=True)
@@ -19,7 +19,7 @@ class Candidato(models.Model):
 
 
 class CV(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     candidate = models.ForeignKey(
         Candidato,
         on_delete=models.CASCADE,
@@ -42,7 +42,7 @@ class CV(models.Model):
 
 
 class CVChunk(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     cv = models.ForeignKey(
         CV,
         on_delete=models.CASCADE,
@@ -53,7 +53,6 @@ class CVChunk(models.Model):
     page_number = models.IntegerField(null=True, blank=True)
     chunk_index = models.IntegerField()
     embedding = models.JSONField(null=True, blank=True)  # placeholder
-    created_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = 'CV_CHUNKS'

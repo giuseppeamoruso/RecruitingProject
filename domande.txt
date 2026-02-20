@@ -1,0 +1,4 @@
+1) Hai esperienza con Docker in produzione?
+2) Come gestisci il deploy?
+- Parla di monitoring
+- CI/CD pipeline

@@ -2,7 +2,8 @@ import uuid
 
 from rest_framework import viewsets
 from sentence_transformers import SentenceTransformer
-
+from docx import Document as DocxDocument
+import io
 from .models import Candidato, CV, CVChunk, JobDescription, InterviewQuestion
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -23,7 +24,13 @@ from django.db import connection
 from pgvector.psycopg2 import register_vector
 
 from .services.llm_service import generate_followup_question
+_embedding_model = None
 
+def get_embedding_model():
+    global _embedding_model
+    if _embedding_model is None:
+        _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _embedding_model
 
 class CandidatoViewSet(viewsets.ModelViewSet):
     queryset = Candidato.objects.all()
@@ -68,7 +75,7 @@ class ChunkSearchView(GenericAPIView):
         top_k = serializer.validated_data["top_k"]
 
         # embedding query
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = get_embedding_model()
         query_vec = model.encode(query_text, normalize_embeddings=True).tolist()
 
         connection.ensure_connection()
@@ -121,7 +128,7 @@ class JobDescriptionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         jd = serializer.save()
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = get_embedding_model()
         embedding = model.encode(
             jd.description_text,
             normalize_embeddings=True
@@ -272,7 +279,7 @@ class InterviewQuestionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         q = serializer.save()
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = get_embedding_model()
         vec = model.encode(q.question_text, normalize_embeddings=True).tolist()
 
         connection.ensure_connection()
@@ -300,7 +307,7 @@ class LiveSuggestView(GenericAPIView):
         note_text = serializer.validated_data["note_text"]
         top_k = serializer.validated_data["top_k"]
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = get_embedding_model()
         note_vec = model.encode(note_text, normalize_embeddings=True).tolist()
 
         connection.ensure_connection()
@@ -430,7 +437,7 @@ class AddNoteView(GenericAPIView):
         note_text = serializer.validated_data["note_text"]
         author = serializer.validated_data.get("author", "")
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = get_embedding_model()
         note_vec = model.encode(note_text, normalize_embeddings=True).tolist()
 
         connection.ensure_connection()
@@ -489,10 +496,27 @@ class AddNoteView(GenericAPIView):
         if similarity < 0.3:
             risk_flag = "HIGH"
 
+        # Recupera chunk CV più vicini alla nota (contesto per LLM)
+        with connection.cursor() as cur:
+            cur.execute(
+                """
+                SELECT ch.content
+                FROM "CV_CHUNKS" ch
+                JOIN "CVS" cv ON cv.id = ch.cv_id
+                JOIN "INTERVIEW_SESSIONS" s ON s.candidate_id = cv.candidate_id
+                WHERE s.id = %s AND cv.is_active = true
+                ORDER BY ch.embedding <=> %s::vector
+                LIMIT 3
+                """,
+                [session_id, note_vec],
+            )
+            cv_chunks = [r[0] for r in cur.fetchall()]
+
         generated_question = generate_followup_question(
             jd_text=jd_text,
             note_text=note_text,
-            risk_level=risk_flag
+            risk_level=risk_flag,
+            cv_chunks=cv_chunks,
         )
 
         return Response({
@@ -529,7 +553,7 @@ class NextBestQuestionView(GenericAPIView):
         connection.ensure_connection()
         register_vector(connection.connection)
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = get_embedding_model()
 
         # 1) Recupera session: candidate_id + job_description_id
         with connection.cursor() as cur:
@@ -746,16 +770,29 @@ class SessionQuestionsView(GenericAPIView):
         connection.ensure_connection()
         register_vector(connection.connection)
 
+        recruiter_id = request.query_params.get("recruiter_id", None)
+
         with connection.cursor() as cur:
-            cur.execute(
-                """
-                SELECT id, question_text, asked_at, asked_by, created_at
-                FROM "INTERVIEW_QUESTIONS"
-                WHERE session_id = %s
-                ORDER BY created_at DESC NULLS LAST
-                """,
-                [str(session_id)],
-            )
+            if recruiter_id:
+                cur.execute(
+                    """
+                    SELECT id, question_text, asked_at, asked_by, created_at
+                    FROM "INTERVIEW_QUESTIONS"
+                    WHERE session_id = %s AND recruiter_id = %s
+                    ORDER BY created_at ASC NULLS LAST
+                    """,
+                    [str(session_id), recruiter_id],
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT id, question_text, asked_at, asked_by, created_at
+                    FROM "INTERVIEW_QUESTIONS"
+                    WHERE session_id = %s
+                    ORDER BY created_at ASC NULLS LAST
+                    """,
+                    [str(session_id)],
+                )
             rows = cur.fetchall()
 
         return Response({
@@ -779,11 +816,12 @@ class SessionQuestionsView(GenericAPIView):
 
         question_text = serializer.validated_data["question_text"]
         author = serializer.validated_data.get("author", "")
+        recruiter_id = request.data.get("recruiter_id", "")
 
         connection.ensure_connection()
         register_vector(connection.connection)
 
-        # ricava job_description_id dalla sessione
+        # Ricava job_description_id dalla sessione
         with connection.cursor() as cur:
             cur.execute(
                 """
@@ -798,7 +836,7 @@ class SessionQuestionsView(GenericAPIView):
                 return Response({"error": "Session not found"}, status=404)
             jd_id = row[0]
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = get_embedding_model()
         vec = model.encode(question_text, normalize_embeddings=True).tolist()
 
         q_id = str(uuid.uuid4())
@@ -807,10 +845,10 @@ class SessionQuestionsView(GenericAPIView):
             cur.execute(
                 """
                 INSERT INTO "INTERVIEW_QUESTIONS"
-                (id, session_id, job_description_id, question_text, embedding, created_at)
-                VALUES (%s, %s, %s, %s, %s, now())
+                (id, session_id, job_description_id, question_text, embedding, created_at, recruiter_id)
+                VALUES (%s, %s, %s, %s, %s, now(), %s)
                 """,
-                [q_id, str(session_id), str(jd_id), question_text, vec],
+                [q_id, str(session_id), str(jd_id), question_text, vec, recruiter_id],
             )
 
         return Response({
@@ -819,7 +857,6 @@ class SessionQuestionsView(GenericAPIView):
             "question_text": question_text,
             "author": author
         }, status=201)
-
 
 class MarkQuestionAskedView(GenericAPIView):
     serializer_class = MarkAskedSerializer
@@ -1107,3 +1144,252 @@ Produce un recap in ITALIANO con questo formato JSON (solo JSON, niente testo ex
             },
             "llm_recap": llm_recap
         })
+
+class SessionListView(APIView):
+    """
+    GET /api/sessions/
+    Ritorna la lista di tutte le sessioni con:
+    - info candidato e JD
+    - coverage score calcolato al volo (distanza coseno CV ↔ JD)
+    - conteggio note e domande fatte
+    """
+    def get(self, request):
+        connection.ensure_connection()
+        register_vector(connection.connection)
+
+        with connection.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                    s.id                          AS session_id,
+                    s.status,
+                    s.started_at,
+                    s.ended_at,
+                    c.id                          AS candidate_id,
+                    c.full_name                   AS candidate_name,
+                    jd.id                         AS jd_id,
+                    jd.title                      AS jd_title,
+                    -- Coverage score: calcolato direttamente in SQL
+                    -- Prende il CV attivo del candidato e calcola distanza con la JD
+                    ROUND(
+                    (GREATEST(0.0, 1.0 - (cv.embedding <=> jd.embedding)) * 100)::numeric,
+                        2
+                    )                             AS coverage_score,
+                    -- Quante note sono state aggiunte in questa sessione
+                    (
+                        SELECT COUNT(*)
+                        FROM "INTERVIEW_NOTES" n
+                        WHERE n.session_id = s.id
+                    )                             AS notes_count,
+                    -- Quante domande sono state effettivamente fatte (asked_at non nullo)
+                    (
+                        SELECT COUNT(*)
+                        FROM "INTERVIEW_QUESTIONS" q
+                        WHERE q.session_id = s.id
+                          AND q.asked_at IS NOT NULL
+                    )                             AS questions_asked_count
+                FROM "INTERVIEW_SESSIONS" s
+                JOIN "CANDIDATI" c         ON c.id = s.candidate_id
+                JOIN "JOB_DESCRIPTIONS" jd ON jd.id = s.job_description_id
+                -- CV attivo del candidato (LEFT JOIN perché potrebbe non esserci ancora)
+                LEFT JOIN "CVS" cv
+                    ON cv.candidate_id = s.candidate_id
+                    AND cv.is_active = true
+                ORDER BY s.started_at DESC NULLS LAST
+                """
+            )
+            rows = cur.fetchall()
+            columns = [col[0] for col in cur.description]
+
+        sessions = [dict(zip(columns, row)) for row in rows]
+
+        return Response({"sessions": sessions})
+
+
+class SessionTimelineView(APIView):
+    """
+    GET /api/sessions/<id>/timeline/
+    Feed unificato e ordinato cronologicamente di tutto ciò che
+    è successo durante la call: note aggiunte e domande fatte.
+    Ogni evento ha un 'type' per distinguerlo nella UI.
+    """
+    def get(self, request, session_id):
+        connection.ensure_connection()
+
+        with connection.cursor() as cur:
+            # Recupera le note della sessione
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    'note'        AS type,
+                    author,
+                    note_text     AS text,
+                    NULL          AS asked_by,
+                    created_at
+                FROM "INTERVIEW_NOTES"
+                WHERE session_id = %s
+                """,
+                [str(session_id)],
+            )
+            note_rows = cur.fetchall()
+            note_cols = [col[0] for col in cur.description]
+
+            # Recupera le domande FATTE (asked_at non nullo = domanda effettivamente posta)
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    'question'    AS type,
+                    asked_by      AS author,
+                    question_text AS text,
+                    asked_by,
+                    asked_at      AS created_at
+                FROM "INTERVIEW_QUESTIONS"
+                WHERE session_id = %s
+                  AND asked_at IS NOT NULL
+                """,
+                [str(session_id)],
+            )
+            question_rows = cur.fetchall()
+            question_cols = [col[0] for col in cur.description]
+
+        # Convertiamo le righe in dizionari
+        events = []
+
+        for row in note_rows:
+            item = dict(zip(note_cols, row))
+            events.append(item)
+
+        for row in question_rows:
+            item = dict(zip(question_cols, row))
+            events.append(item)
+
+        # Ordiniamo tutto insieme per timestamp (None va in fondo)
+        events.sort(key=lambda e: e["created_at"] or "9999")
+
+        return Response({
+            "session_id": str(session_id),
+            "timeline": events
+        })
+
+class SessionCVView(APIView):
+    def get(self, request, session_id):
+        with connection.cursor() as cur:
+            cur.execute(
+                """
+                SELECT cv.raw_text, cv.file_url
+                FROM "CVS" cv
+                JOIN "INTERVIEW_SESSIONS" s ON s.candidate_id = cv.candidate_id
+                WHERE s.id = %s AND cv.is_active = true
+                LIMIT 1
+                """,
+                [str(session_id)],
+            )
+            row = cur.fetchone()
+
+        if not row:
+            return Response({"raw_text": None, "file_url": None})
+
+        return Response({"raw_text": row[0], "file_url": row[1]})
+
+class ParseQuestionsFromFileView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        file = request.FILES.get("file")
+        if not file:
+            return Response({"error": "Nessun file"}, status=400)
+
+        filename = file.name.lower()
+        questions = []
+
+        if filename.endswith(".txt"):
+            text = file.read().decode("utf-8", errors="ignore")
+            questions = self._parse_text(text)
+
+        elif filename.endswith(".docx"):
+            doc = DocxDocument(io.BytesIO(file.read()))
+            text = "\n".join([p.text for p in doc.paragraphs])
+            questions = self._parse_text(text)
+
+        else:
+            return Response({"error": "Formato non supportato. Usa .txt o .docx"}, status=400)
+
+        return Response({"questions": questions, "count": len(questions)})
+
+    def _parse_text(self, text: str):
+        import re
+        questions = []
+        for line in text.split("\n"):
+            cleaned = re.sub(r"^\s*[\d]+[).]\s*", "", line)
+            cleaned = re.sub(r"^\s*[-•]\s*", "", cleaned).strip()
+            if len(cleaned) > 5:
+                questions.append(cleaned)
+        return questions
+
+
+class GenerateQuestionsFromCVView(APIView):
+    def post(self, request):
+        candidate_id = request.data.get("candidate_id")
+        jd_id = request.data.get("job_description_id")
+
+        if not candidate_id or not jd_id:
+            return Response({"error": "candidate_id e job_description_id richiesti"}, status=400)
+
+        with connection.cursor() as cur:
+            cur.execute(
+                'SELECT raw_text FROM "CVS" WHERE candidate_id = %s AND is_active = true LIMIT 1',
+                [str(candidate_id)]
+            )
+            row = cur.fetchone()
+            if not row or not row[0]:
+                return Response({"error": "CV non trovato"}, status=404)
+            cv_text = row[0][:3000]  # limitiamo per non sforare il context window
+
+            cur.execute(
+                'SELECT title, description_text FROM "JOB_DESCRIPTIONS" WHERE id = %s',
+                [str(jd_id)]
+            )
+            jd_row = cur.fetchone()
+            if not jd_row:
+                return Response({"error": "JD non trovata"}, status=404)
+            jd_title, jd_text = jd_row
+
+        from openai import OpenAI
+        import os
+        client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+        prompt = f"""
+Sei un recruiter tecnico senior. Analizza il CV e la Job Description e genera 5 domande tecniche mirate.
+
+JOB DESCRIPTION ({jd_title}):
+{jd_text[:1500]}
+
+CV (estratto):
+{cv_text}
+
+Genera esattamente 5 domande tecniche in italiano, una per riga, senza numerazione, senza prefazioni.
+Le domande devono verificare se il candidato è adatto al ruolo specifico.
+"""
+        try:
+            response = client.chat.completions.create(
+                model=os.environ.get("OPENAI_MODEL", "gpt-4o-mini"),
+                messages=[
+                    {"role": "system", "content": "Sei un recruiter tecnico senior. Rispondi solo in italiano."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.4,
+            )
+            raw = response.choices[0].message.content.strip()
+            questions = [q.strip() for q in raw.split("\n") if q.strip()]
+        except Exception:
+            questions = [
+                "Descrivi un progetto complesso che hai gestito dall'architettura al deploy.",
+                "Come hai gestito un bug critico in produzione?",
+                "Quale stack tecnologico preferisci e perché?",
+                "Come approcci il code review nel tuo team?",
+                "Descrivi la tua esperienza con sistemi distribuiti.",
+            ]
+
+        return Response({"questions": questions, "count": len(questions)})

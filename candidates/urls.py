@@ -2,7 +2,8 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import CandidatoViewSet, CVViewSet, CVChunkViewSet, CVUploadView, ChunkSearchView, JobDescriptionViewSet, \
     CoverageView, CoverageExplainView, InterviewQuestionViewSet, LiveSuggestView, StartSessionView, AddNoteView, \
-    NextBestQuestionView, SessionQuestionsView, MarkQuestionAskedView, EndSessionView, SessionRecapView
+    NextBestQuestionView, SessionQuestionsView, MarkQuestionAskedView, EndSessionView, SessionRecapView, \
+    SessionListView, SessionTimelineView, SessionCVView, ParseQuestionsFromFileView, GenerateQuestionsFromCVView
 
 router = DefaultRouter()
 router.register(r'candidates', CandidatoViewSet)
@@ -24,7 +25,11 @@ urlpatterns = [
     path("interview-questions/<uuid:question_id>/mark-asked/", MarkQuestionAskedView.as_view(), name="mark-question-asked"),
     path("sessions/<uuid:session_id>/end/", EndSessionView.as_view(), name="end-session"),
     path("sessions/<uuid:session_id>/recap/", SessionRecapView.as_view(), name="session-recap"),
-
+    path("sessions/", SessionListView.as_view(), name="session-list"),
+    path("sessions/<uuid:session_id>/timeline/", SessionTimelineView.as_view(), name="session-timeline"),
+    path("sessions/<uuid:session_id>/cv/", SessionCVView.as_view(), name="session-cv"),
+    path("questions/parse-file/", ParseQuestionsFromFileView.as_view(), name="parse-questions-file"),
+    path("questions/generate/", GenerateQuestionsFromCVView.as_view(), name="generate-questions"),
 ]
 
 urlpatterns += router.urls
