@@ -82,10 +82,16 @@ export interface RecapResponse {
 // Funzione interna per fare fetch e gestire errori in modo uniforme.
 // Tutte le funzioni sotto la usano invece di chiamare fetch direttamente.
 
-export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const { headers, ...rest } = options;
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
+    ...rest,
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      ...(headers as Record<string, string>),
+    },
   });
 
   if (!res.ok) {
