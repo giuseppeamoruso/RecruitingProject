@@ -1,6 +1,18 @@
-Interview Copilot
+
 Premessa
-Nella mia esperienza lavorativa ho spesso ricoperto anche il ruolo di stakeholder, ritrovandomi in call dove si ripetevano spesso le stesse domande, ci si dimenticava cosa chiedere, non ci si appuntava correttamente l’informazione. Data quindi la richiesta, ho pensato di strutturare un sistema che fosse in grado di dare ai recruiter tutto ciò che serve per intervistare al meglio in candidato: cv e domande a portata di mano( con la possibilità di farle generare dall’AI stessa), note ( con annessa elaborazione di domande da parte dell’AI con studio dell’andamento della call) e recap finale. 
+Durante la mia esperienza lavorativa mi sono trovato più volte a ricoprire anche il ruolo di stakeholder in processi di selezione. Ho notato come molte interviste soffrano di problemi ricorrenti: domande ripetute, informazioni annotate in modo frammentato, difficoltà nel collegare il CV ai requisiti reali della posizione e mancanza di una visione strutturata dell’andamento della call.
+Da questa osservazione nasce Interview Copilot, un sistema di supporto decisionale per recruiter che integra retrieval semantico, modelli di machine learning locali e orchestrazione controllata di LLM per assistere l’intervistatore in tempo reale.
+L’obiettivo non è sostituire il recruiter, ma fornirgli:
+•	CV analizzato e navigabile
+•	Domande strutturate o generate dinamicamente
+•	Analisi dell’andamento della sessione
+•	Recap finale con coverage score e gap evidenziati
+Il sistema è stato progettato con un’attenzione particolare a:
+•	Separazione tra logica deterministica e generazione AI
+•	Controllo dei costi
+•	Explainability delle decisioni
+•	Architettura scalabile verso un contesto production-ready
+
 Cosa fa il sistema
 Interview Copilot è strutturato come una web application con tre pannelli affiancati nella schermata di chiamata:
 
