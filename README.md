@@ -22,6 +22,12 @@ Interview Copilot è strutturato come una web application con tre pannelli affia
 
 Il flusso completo di utilizzo prevede quattro step: creazione o selezione del candidato con upload del CV, selezione o creazione della Job Description, caricamento o generazione AI delle domande per la sessione, e avvio della call. Al termine, il sistema produce un recap automatico con coverage score, punti di forza, gap rilevati e step consigliati.
 
+<img width="818" height="794" alt="immagine" src="https://github.com/user-attachments/assets/e4ddbc06-d0dc-44be-9676-10f16dc5b417" />
+<img width="691" height="821" alt="immagine" src="https://github.com/user-attachments/assets/442e9636-0e9c-4afb-9e6a-d63dbb0b0eeb" />
+<img width="663" height="857" alt="immagine" src="https://github.com/user-attachments/assets/691a5b49-b0ee-468d-b015-4e5e876fa952" />
+<img width="1919" height="942" alt="immagine" src="https://github.com/user-attachments/assets/a6e73862-da46-4532-90c2-90675e2d6f1c" />
+<img width="624" height="896" alt="immagine" src="https://github.com/user-attachments/assets/8491d7bd-9d3b-49b4-ad7c-1112b17752e6" />
+
 Stack tecnologico
 Backend — Django e Django REST Framework
 Il backend è costruito con Django 5 e Django REST Framework. La scelta di Django non è stata casuale: la sua solidità nella gestione dei modelli dati, il sistema di migrations e la flessibilità nell'uso di raw SQL tramite connection.cursor() lo rendono ideale per un progetto che interagisce con un database preesistente senza poterne modificare lo schema arbitrariamente.
