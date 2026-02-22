@@ -14,6 +14,16 @@ export default function Home() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  const filteredSessions = sessions
+    .filter((s) =>
+      search === "" ||
+      s.candidate_name.toLowerCase().includes(search.toLowerCase()) ||
+      s.jd_title.toLowerCase().includes(search.toLowerCase())
+    );
+
+  const visibleSessions = showAll ? filteredSessions : filteredSessions.slice(0, 3);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -40,7 +50,6 @@ export default function Home() {
       <div className="border-b border-gray-800 px-8 py-5 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Interview Copilot</h1>
-          <p className="text-sm text-gray-400 mt-0.5">AI-powered recruiting assistant</p>
         </div>
         <div className="flex items-center gap-4">
           {/* Utente loggato */}
@@ -66,34 +75,54 @@ export default function Home() {
       </div>
 
       {/* Contenuto */}
-      <div className="max-w-4xl mx-auto px-8 py-10">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
-          Sessioni recenti
-        </h2>
+        <div className="max-w-4xl mx-auto px-8 py-10">
+          <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+            Sessioni recenti
+          </h2>
 
-        {loading && (
-          <p className="text-gray-500 text-sm">Caricamento...</p>
-        )}
+          {/* Barra di ricerca */}
+          {sessions.length > 0 && (
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Cerca per candidato o posizione..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setShowAll(true); }}
+                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-gray-300 placeholder-gray-600"
+              />
+            </div>
+          )}
 
-        {error && (
-          <div className="bg-red-900/30 border border-red-800 rounded-lg px-4 py-3 text-red-300 text-sm">
-            Errore: {error}
+          {loading && <p className="text-gray-500 text-sm">Caricamento...</p>}
+
+          {error && (
+            <div className="bg-red-900/30 border border-red-800 rounded-lg px-4 py-3 text-red-300 text-sm">
+              Errore: {error}
+            </div>
+          )}
+
+          {!loading && !error && sessions.length === 0 && (
+            <div className="text-center py-20 text-gray-500">
+              <p className="text-lg">Nessuna sessione ancora.</p>
+              <p className="text-sm mt-1">Crea la tua prima sessione per iniziare.</p>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3">
+            {visibleSessions.map((session) => (
+              <SessionCard key={session.session_id} session={session} />
+            ))}
           </div>
-        )}
 
-        {!loading && !error && sessions.length === 0 && (
-          <div className="text-center py-20 text-gray-500">
-            <p className="text-lg">Nessuna sessione ancora.</p>
-            <p className="text-sm mt-1">Crea la tua prima sessione per iniziare.</p>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-3">
-          {sessions.map((session) => (
-            <SessionCard key={session.session_id} session={session} />
-          ))}
+          {filteredSessions.length > 3 && search === "" && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="mt-4 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+            >
+              {showAll ? "Mostra meno ↑" : `Mostra tutte (${filteredSessions.length}) ↓`}
+            </button>
+          )}
         </div>
-      </div>
     </main>
   );
 }

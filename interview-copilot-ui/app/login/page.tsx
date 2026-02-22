@@ -39,9 +39,6 @@ export default function LoginPage() {
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-6">
           <div className="space-y-1">
             <h2 className="text-lg font-medium">Accedi</h2>
-            <p className="text-xs text-gray-500">
-              Usa il tuo account Google aziendale
-            </p>
           </div>
 
           <button
@@ -68,10 +65,6 @@ export default function LoginPage() {
             <p className="text-red-400 text-xs text-center">{error}</p>
           )}
         </div>
-
-        <p className="text-center text-xs text-gray-700">
-          Solo per recruiter autorizzati
-        </p>
       </div>
     </main>
   );

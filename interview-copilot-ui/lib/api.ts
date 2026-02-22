@@ -1,9 +1,5 @@
-// URL base del backend Django — in sviluppo è localhost:8000
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
-// ─── TIPI ────────────────────────────────────────────────────────────────────
-// Definiamo la "forma" dei dati che ci aspettiamo dal backend.
-// TypeScript ci avvisa se usiamo un campo che non esiste.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 export interface Session {
   session_id: string;
@@ -60,6 +56,8 @@ export interface RecapResponse {
     ended_at: string | null;
     candidate_id: string;
     job_description_id: string;
+    candidate_name: string;
+    jd_title: string;
   };
   coverage: {
     coverage_score: number;
@@ -77,10 +75,6 @@ export interface RecapResponse {
     recommended_next_steps: string[];
   };
 }
-
-// ─── HELPER ──────────────────────────────────────────────────────────────────
-// Funzione interna per fare fetch e gestire errori in modo uniforme.
-// Tutte le funzioni sotto la usano invece di chiamare fetch direttamente.
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const { headers, ...rest } = options;
@@ -201,7 +195,7 @@ export async function uploadCV(
   return res.json();
 }
 
-// ─── JOB DESCRIPTIONS ────────────────────────────────────────────────────────
+
 
 export async function getJobDescriptions(): Promise<{ results: JobDescription[] }> {
   return apiFetch("/job-descriptions/");

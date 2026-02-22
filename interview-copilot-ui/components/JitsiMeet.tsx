@@ -41,19 +41,19 @@ export default function JitsiMeet({ roomName, displayName = "Recruiter" }: Jitsi
           startAudioOnly: false,
         },
         interfaceConfigOverwrite: {
-          // Tutti i bottoni incluso screen share
+
           TOOLBAR_BUTTONS: [
             "microphone",
             "camera",
-            "desktop",        // condivisione schermo
-            "tileview",       // vista griglia (tutti centrati)
+            "desktop",
+            "tileview",
             "fullscreen",
             "hangup",
           ],
           SHOW_JITSI_WATERMARK: false,
           SHOW_BRAND_WATERMARK: false,
-          TOOLBAR_ALWAYS_VISIBLE: true,  // toolbar sempre visibile, non si nasconde
-          FILM_STRIP_MAX_HEIGHT: 120,    // altezza strip partecipanti
+          TOOLBAR_ALWAYS_VISIBLE: true,
+          FILM_STRIP_MAX_HEIGHT: 120,
         },
       });
     };

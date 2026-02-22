@@ -44,7 +44,20 @@ export default function RecapPage() {
         )}
 
         {recap && (
+
+
           <>
+            {/* Info candidato e JD */}
+              <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Candidato</p>
+                  <p className="text-xl font-semibold">{recap.session.candidate_name}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Posizione</p>
+                  <p className="text-lg font-medium text-indigo-400">{recap.session.jd_title}</p>
+                </div>
+              </div>
             {/* Coverage */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
               <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">

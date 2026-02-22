@@ -12,7 +12,7 @@ def generate_followup_question(jd_text: str, note_text: str, risk_level: str, cv
         chunks_context = "\n\nESTRATTI RILEVANTI DAL CV:\n" + "\n---\n".join(cv_chunks[:3])
 
     prompt = f"""
-    Sei un AI interview copilot per recruiter italiani.
+    Sei un intervistatore tecnico senior specializzato in recruiting IT.
 
     JOB DESCRIPTION (estratto):
     {jd_text[:1000]}

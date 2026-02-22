@@ -116,11 +116,6 @@ export default function NewSessionPage() {
   try {
     // Filtra le domande vuote e le salva nel backend
     const validQuestions = questionInputs.filter((q) => q.trim());
-
-    if (validQuestions.length > 0 && selectedCandidate && selectedJd) {
-      // Prima avviamo la sessione temporaneamente per avere il session_id
-      // Le domande vengono caricate dopo l'avvio della sessione
-    }
     setStep("confirm");
   } catch (e: any) {
     setError(e.message);
@@ -214,7 +209,7 @@ export default function NewSessionPage() {
         {/* ── STEP 1: Candidato ── */}
         {step === "candidate" && (
           <div className="space-y-6" >
-            <h2 className="text-lg font-medium">Seleziona o crea un candidato</h2>
+            <h2 className="text-lg font-medium">Seleziona candidato</h2>
 
             {/* Candidati esistenti */}
             {loadingCandidates && <p className="text-gray-400 text-sm">Caricamento candidati...</p>}
@@ -382,7 +377,7 @@ export default function NewSessionPage() {
               {/* Genera dal CV */}
               {selectedCandidate && selectedJd && (
                 <div className="bg-indigo-900/20 border border-indigo-800 rounded-xl p-4 space-y-3">
-                  <p className="text-sm font-medium text-indigo-300">🤖 Genera domande dal CV</p>
+                  <p className="text-sm font-medium text-indigo-300">Genera domande dal CV</p>
                   <p className="text-xs text-gray-500">
                     L'AI analizza il CV di {selectedCandidate.full_name} e la JD "{selectedJd.title}"
                     e genera domande tecniche mirate.
@@ -408,7 +403,7 @@ export default function NewSessionPage() {
                     disabled={loadingQuestions}
                     className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-colors px-4 py-2 rounded-lg text-sm font-medium"
                   >
-                    {loadingQuestions ? "Generazione in corso..." : "✨ Genera 5 domande"}
+                    {loadingQuestions ? "Generazione in corso..." : "Genera 5 domande"}
                   </button>
                 </div>
               )}
@@ -496,7 +491,7 @@ export default function NewSessionPage() {
                 disabled={loading}
                 className="flex-1 bg-green-600 hover:bg-green-500 disabled:opacity-50 transition-colors px-4 py-3 rounded-lg font-medium"
               >
-                {loading ? "Avvio..." : "🚀 Avvia Sessione"}
+                {loading ? "Avvio..." : "Avvia Sessione"}
               </button>
             </div>
           </div>

@@ -30,6 +30,7 @@ urlpatterns = [
     path("sessions/<uuid:session_id>/cv/", SessionCVView.as_view(), name="session-cv"),
     path("questions/parse-file/", ParseQuestionsFromFileView.as_view(), name="parse-questions-file"),
     path("questions/generate/", GenerateQuestionsFromCVView.as_view(), name="generate-questions"),
+    path('sessions/<uuid:session_id>/questions/<uuid:question_id>/mark-asked/', MarkQuestionAskedView.as_view()),
 ]
 
 urlpatterns += router.urls

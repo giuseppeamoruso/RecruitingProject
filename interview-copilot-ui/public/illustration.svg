@@ -1,0 +1,251 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <!-- Paper texture filter -->
+    <filter id="sketch" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" seed="2" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="roughen">
+      <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="3" seed="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- Pencil stroke style -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&amp;display=swap');
+      
+      .sketch-text { font-family: 'Caveat', cursive; fill: #1a1a2e; }
+      .label { font-family: 'Caveat', cursive; fill: #1a1a2e; font-size: 14px; }
+      .title { font-family: 'Caveat', cursive; fill: #1a1a2e; font-size: 18px; font-weight: 600; }
+      .big-label { font-family: 'Caveat', cursive; fill: #2d2d4e; font-size: 22px; font-weight: 700; }
+      .ai-text { font-family: 'Caveat', cursive; fill: #3b3b6e; font-size: 13px; }
+    </style>
+  </defs>
+
+  <!-- Background: cream paper -->
+  <rect width="800" height="500" fill="#faf8f3"/>
+  <!-- Subtle grid lines like graph paper -->
+  <g opacity="0.06">
+    <line x1="0" y1="20" x2="800" y2="20" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="40" x2="800" y2="40" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="60" x2="800" y2="60" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="80" x2="800" y2="80" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="100" x2="800" y2="100" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="120" x2="800" y2="120" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="140" x2="800" y2="140" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="160" x2="800" y2="160" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="180" x2="800" y2="180" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="200" x2="800" y2="200" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="220" x2="800" y2="220" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="240" x2="800" y2="240" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="260" x2="800" y2="260" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="280" x2="800" y2="280" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="300" x2="800" y2="300" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="320" x2="800" y2="320" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="340" x2="800" y2="340" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="360" x2="800" y2="360" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="380" x2="800" y2="380" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="400" x2="800" y2="400" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="420" x2="800" y2="420" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="440" x2="800" y2="440" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="460" x2="800" y2="460" stroke="#888" stroke-width="0.5"/>
+    <line x1="0" y1="480" x2="800" y2="480" stroke="#888" stroke-width="0.5"/>
+    <line x1="20" y1="0" x2="20" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="40" y1="0" x2="40" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="60" y1="0" x2="60" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="80" y1="0" x2="80" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="100" y1="0" x2="100" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="120" y1="0" x2="120" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="140" y1="0" x2="140" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="160" y1="0" x2="160" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="180" y1="0" x2="180" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="200" y1="0" x2="200" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="220" y1="0" x2="220" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="240" y1="0" x2="240" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="260" y1="0" x2="260" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="280" y1="0" x2="280" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="300" y1="0" x2="300" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="320" y1="0" x2="320" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="340" y1="0" x2="340" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="360" y1="0" x2="360" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="380" y1="0" x2="380" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="400" y1="0" x2="400" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="420" y1="0" x2="420" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="440" y1="0" x2="440" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="460" y1="0" x2="460" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="480" y1="0" x2="480" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="500" y1="0" x2="500" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="520" y1="0" x2="520" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="540" y1="0" x2="540" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="560" y1="0" x2="560" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="580" y1="0" x2="580" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="600" y1="0" x2="600" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="620" y1="0" x2="620" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="640" y1="0" x2="640" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="660" y1="0" x2="660" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="680" y1="0" x2="680" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="700" y1="0" x2="700" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="720" y1="0" x2="720" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="740" y1="0" x2="740" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="760" y1="0" x2="760" y2="500" stroke="#888" stroke-width="0.5"/>
+    <line x1="780" y1="0" x2="780" y2="500" stroke="#888" stroke-width="0.5"/>
+  </g>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- LEFT: RECRUITER -->
+  <!-- ════════════════════════════════════ -->
+
+  <!-- Laptop screen (recruiter) sketch -->
+  <g filter="url(#sketch)" transform="translate(60, 120)">
+    <!-- Laptop body -->
+    <rect x="0" y="0" width="180" height="120" rx="6" fill="#e8e4d9" stroke="#2d2d4e" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- Screen content: video call boxes -->
+    <rect x="8" y="8" width="78" height="58" rx="3" fill="#c8d4e8" stroke="#2d2d4e" stroke-width="1.8"/>
+    <rect x="94" y="8" width="78" height="58" rx="3" fill="#d4e8d4" stroke="#2d2d4e" stroke-width="1.8"/>
+    <!-- Candidate face in right box (simple sketch face) -->
+    <circle cx="133" cy="28" r="10" fill="#f0dcc8" stroke="#2d2d4e" stroke-width="1.5"/>
+    <line x1="130" y1="32" x2="136" y2="32" stroke="#2d2d4e" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="130" cy="26" r="1.5" fill="#2d2d4e"/>
+    <circle cx="136" cy="26" r="1.5" fill="#2d2d4e"/>
+    <!-- Candidate shoulders -->
+    <path d="M118 50 Q133 42 148 50" stroke="#2d2d4e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- Recruiter face in left box -->
+    <circle cx="47" cy="28" r="10" fill="#f0dcc8" stroke="#2d2d4e" stroke-width="1.5"/>
+    <path d="M44 33 Q47 36 50 33" stroke="#2d2d4e" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <circle cx="44" cy="26" r="1.5" fill="#2d2d4e"/>
+    <circle cx="50" cy="26" r="1.5" fill="#2d2d4e"/>
+    <path d="M32 50 Q47 42 62 50" stroke="#2d2d4e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- Audio waveform bottom bar -->
+    <rect x="8" y="72" width="164" height="12" rx="2" fill="#d0ccc0" stroke="#2d2d4e" stroke-width="1.2"/>
+    <line x1="20" y1="78" x2="20" y2="74" stroke="#2d2d4e" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="26" y1="78" x2="26" y2="72" stroke="#2d2d4e" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="32" y1="78" x2="32" y2="75" stroke="#2d2d4e" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="38" y1="78" x2="38" y2="71" stroke="#2d2d4e" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="44" y1="78" x2="44" y2="74" stroke="#2d2d4e" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="50" y1="78" x2="50" y2="73" stroke="#2d2d4e" stroke-width="1.2" stroke-linecap="round"/>
+    <!-- Laptop base -->
+    <rect x="-10" y="120" width="200" height="10" rx="3" fill="#d0ccc0" stroke="#2d2d4e" stroke-width="2"/>
+  </g>
+
+  <!-- Label: recruiter -->
+  <text x="150" y="278" class="label" text-anchor="middle">recruiter</text>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- CENTER: AI COPILOT -->
+  <!-- ════════════════════════════════════ -->
+
+  <!-- Central AI "brain" box -->
+  <g filter="url(#sketch)">
+    <!-- Main AI panel: slightly tilted card feel -->
+    <rect x="290" y="90" width="220" height="280" rx="12" fill="#eeeaf8" stroke="#3b3b6e" stroke-width="2.8" stroke-linejoin="round"/>
+
+    <!-- Header bar -->
+    <rect x="290" y="90" width="220" height="36" rx="12" fill="#3b3b6e"/>
+    <rect x="290" y="108" width="220" height="18" fill="#3b3b6e"/>
+
+    <!-- Suggestion bubble 1 (highlighted) -->
+    <rect x="302" y="142" width="196" height="52" rx="8" fill="#ffffff" stroke="#3b3b6e" stroke-width="1.8"/>
+    <!-- star icon -->
+    <polygon points="308,162 310,156 312,162 318,162 313,166 315,172 310,168 305,172 307,166 302,162" fill="#f5c842" stroke="#c8a020" stroke-width="0.5"/>
+
+    <!-- Suggestion bubble 2 -->
+    <rect x="302" y="204" width="196" height="44" rx="8" fill="#f0eef8" stroke="#aaa8cc" stroke-width="1.5"/>
+
+    <!-- Suggestion bubble 3 -->
+    <rect x="302" y="258" width="196" height="44" rx="8" fill="#f0eef8" stroke="#aaa8cc" stroke-width="1.5"/>
+
+    <!-- Divider -->
+    <line x1="302" y1="316" x2="498" y2="316" stroke="#aaa8cc" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- CV chip bottom -->
+    <rect x="302" y="324" width="88" height="28" rx="14" fill="#d4e8d8" stroke="#4a8c5c" stroke-width="1.5"/>
+    <!-- JD chip bottom -->
+    <rect x="400" y="324" width="88" height="28" rx="14" fill="#d4d8f0" stroke="#4a4c8c" stroke-width="1.5"/>
+  </g>
+
+  <!-- AI panel text labels -->
+  <text x="400" y="114" class="sketch-text" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="700" font-family="Caveat, cursive">✦ Prossima domanda</text>
+
+  <text x="325" y="162" class="ai-text" font-size="12" fill="#3b3b6e" font-family="Caveat, cursive" font-weight="600">↳ suggerita ora</text>
+  <text x="325" y="177" class="ai-text" font-size="12" fill="#3b3b6e" font-family="Caveat, cursive">"Hai mai gestito DB in prod?"</text>
+  <text x="325" y="191" class="ai-text" font-size="11" fill="#7a7a9e" font-family="Caveat, cursive">rischio: ALTO · rilevanza 92%</text>
+
+  <text x="310" y="228" class="ai-text" font-size="12" fill="#5a5a7e" font-family="Caveat, cursive">"Come gestisci il versioning?"</text>
+  <text x="310" y="242" class="ai-text" font-size="11" fill="#9a9ab8" font-family="Caveat, cursive">rilevanza 78%</text>
+
+  <text x="310" y="282" class="ai-text" font-size="12" fill="#5a5a7e" font-family="Caveat, cursive">"Descrivi un deploy critico..."</text>
+  <text x="310" y="296" class="ai-text" font-size="11" fill="#9a9ab8" font-family="Caveat, cursive">rilevanza 65%</text>
+
+  <text x="346" y="342" class="ai-text" font-size="11" fill="#3a6e4a" font-family="Caveat, cursive" text-anchor="middle">CV analizzato</text>
+  <text x="444" y="342" class="ai-text" font-size="11" fill="#3a3e7e" font-family="Caveat, cursive" text-anchor="middle">JD caricata</text>
+
+  <!-- Label: AI copilot -->
+  <text x="400" y="405" class="big-label" text-anchor="middle" font-size="20">Interview Copilot</text>
+  <text x="400" y="425" class="label" text-anchor="middle" font-size="13" fill="#6a6a8e">legge il CV · ascolta la call · suggerisce</text>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- ARROWS: recruiter ←→ AI ←→ notes -->
+  <!-- ════════════════════════════════════ -->
+
+  <!-- Arrow: recruiter laptop → AI panel (notes/audio) -->
+  <path d="M248 182 Q268 182 288 195" stroke="#3b3b6e" stroke-width="2" fill="none" stroke-dasharray="5,3" stroke-linecap="round" filter="url(#sketch)"/>
+  <polygon points="285,190 294,196 284,200" fill="#3b3b6e"/>
+  <text x="255" y="175" class="label" font-size="11" fill="#6a6a8e" font-family="Caveat, cursive">note live</text>
+
+  <!-- Arrow: AI panel → recruiter (suggestion) -->
+  <path d="M290 158 Q268 158 250 165" stroke="#f5c842" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#sketch)"/>
+  <polygon points="253,160 244,165 253,170" fill="#f5c842"/>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- RIGHT: NOTES / CONTEXT INPUT -->
+  <!-- ════════════════════════════════════ -->
+
+  <!-- Notepad sketch -->
+  <g filter="url(#sketch)" transform="translate(540, 130)">
+    <rect x="0" y="0" width="160" height="200" rx="4" fill="#fff9e6" stroke="#2d2d4e" stroke-width="2.2"/>
+    <!-- Notepad lines -->
+    <line x1="16" y1="30" x2="144" y2="30" stroke="#c8b88a" stroke-width="1.2"/>
+    <line x1="16" y1="50" x2="144" y2="50" stroke="#c8b88a" stroke-width="1.2"/>
+    <line x1="16" y1="70" x2="144" y2="70" stroke="#c8b88a" stroke-width="1.2"/>
+    <line x1="16" y1="90" x2="144" y2="90" stroke="#c8b88a" stroke-width="1.2"/>
+    <line x1="16" y1="110" x2="144" y2="110" stroke="#c8b88a" stroke-width="1.2"/>
+    <line x1="16" y1="130" x2="144" y2="130" stroke="#c8b88a" stroke-width="1.2"/>
+    <line x1="16" y1="150" x2="144" y2="150" stroke="#c8b88a" stroke-width="1.2"/>
+    <line x1="16" y1="170" x2="144" y2="170" stroke="#c8b88a" stroke-width="1.2"/>
+    <!-- Left margin red line -->
+    <line x1="30" y1="0" x2="30" y2="200" stroke="#e88080" stroke-width="1.5" opacity="0.6"/>
+    <!-- Handwritten notes text -->
+    <text x="36" y="24" font-family="Caveat, cursive" font-size="12" fill="#2d2d4e">conosce React</text>
+    <text x="36" y="44" font-family="Caveat, cursive" font-size="12" fill="#2d2d4e">ha detto "scaling"</text>
+    <text x="36" y="64" font-family="Caveat, cursive" font-size="12" fill="#2d2d4e">mai usato k8s</text>
+    <text x="36" y="84" font-family="Caveat, cursive" font-size="12" fill="#888">esperienza 3 anni</text>
+    <text x="36" y="104" font-family="Caveat, cursive" font-size="12" fill="#888">team distribuito</text>
+    <!-- Pencil icon -->
+    <g transform="translate(130, 175)">
+      <rect x="0" y="-12" width="6" height="20" rx="1" fill="#f5c842" stroke="#2d2d4e" stroke-width="1.2" transform="rotate(-30)"/>
+      <polygon points="0,8 6,8 3,14" fill="#f0d0a0" stroke="#2d2d4e" stroke-width="1" transform="rotate(-30)"/>
+    </g>
+  </g>
+
+  <!-- Label: note recruiter -->
+  <text x="620" y="358" class="label" text-anchor="middle">note del recruiter</text>
+
+  <!-- Arrow: notes → AI -->
+  <path d="M542 230 Q522 230 510 220" stroke="#3b3b6e" stroke-width="2" fill="none" stroke-dasharray="5,3" stroke-linecap="round" filter="url(#sketch)"/>
+  <polygon points="513,215 504,221 513,227" fill="#3b3b6e"/>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- DECORATIVE ELEMENTS -->
+  <!-- ════════════════════════════════════ -->
+
+  <!-- Lightning bolt: realtime -->
+  <g transform="translate(375, 58)" filter="url(#sketch)">
+    <polygon points="12,0 6,14 11,14 2,28 14,12 9,12" fill="#f5c842" stroke="#c8a020" stroke-width="1.5"/>
+  </g>
+  <text x="398" y="72" class="label" font-size="13" fill="#c8a020" font-family="Caveat, cursive">in tempo reale</text>
+
+  <!-- Small asterisk decorations -->
+  <text x="72" y="108" font-family="Caveat, cursive" font-size="20" fill="#c8a020" opacity="0.5">✦</text>
+  <text x="720" y="118" font-family="Caveat, cursive" font-size="16" fill="#c8a020" opacity="0.4">✦</text>
+  <text x="400" y="470" font-family="Caveat, cursive" font-size="13" fill="#9a9a9a" text-anchor="middle">CV + Job Description → analisi semantica → domanda perfetta, ogni volta</text>
+
+</svg>

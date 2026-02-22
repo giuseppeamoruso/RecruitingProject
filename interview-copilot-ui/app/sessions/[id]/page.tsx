@@ -3,8 +3,17 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  getTimeline, addNote, getNextQuestion, endSession,
-  getSessionDetail, getSessionCV, getSessionQuestions, TimelineEvent, createSessionQuestion, parseQuestionsFromFile,
+  getTimeline,
+  addNote,
+  getNextQuestion,
+  endSession,
+  getSessionDetail,
+  getSessionCV,
+  getSessionQuestions,
+  TimelineEvent,
+  createSessionQuestion,
+  parseQuestionsFromFile,
+  apiFetch,
 } from "@/lib/api";
 import CVViewer from "@/components/CVViewer";
 import RiskChart from "@/components/RiskChart";
@@ -42,6 +51,7 @@ export default function SessionPage() {
   const [rightTab, setRightTab] = useState<"questions" | "add">("questions");
   const [newQuestion, setNewQuestion] = useState("");
   const [addingQuestion, setAddingQuestion] = useState(false);
+  const [showEndModal, setShowEndModal] = useState(false);
   useEffect(() => {
     if (user?.displayName) setAuthor(user.displayName);
   }, [user]);
@@ -119,6 +129,17 @@ export default function SessionPage() {
     }
   };
 
+   const handleMarkAsked = async (question_id: string) => {
+        try {
+          await apiFetch(`/sessions/${id}/questions/${question_id}/mark-asked/`, {
+            method: "POST",
+          });
+          getSessionQuestions(id, user?.uid || "").then((data) => setQuestions(data.questions));
+        } catch (e: any) {
+          setError(e.message);
+        }
+      };
+
   const handleNextQuestion = async () => {
     setLoadingQuestion(true);
     setError(null);
@@ -134,18 +155,21 @@ export default function SessionPage() {
     }
   };
 
-  const handleEnd = async () => {
-    if (!confirm("Sei sicuro di voler terminare la sessione?")) return;
-    setEnding(true);
-    try {
-      await endSession(id);
-      setSessionEnded(true);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setEnding(false);
-    }
-  };
+
+
+
+      const handleEnd = async () => {
+      setShowEndModal(false);
+      setEnding(true);
+      try {
+        await endSession(id);
+        setSessionEnded(true);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setEnding(false);
+      }
+    };
   const handleAddQuestion = async () => {
   if (!newQuestion.trim()) return;
   setAddingQuestion(true);
@@ -201,7 +225,7 @@ export default function SessionPage() {
           )}
           {!sessionEnded && (
             <button
-              onClick={handleEnd}
+              onClick={() => setShowEndModal(true)}
               disabled={ending}
               className="bg-red-900/40 hover:bg-red-800/60 border border-red-800 transition-colors px-4 py-2 rounded-lg text-sm font-medium text-red-300 disabled:opacity-50"
             >
@@ -267,28 +291,29 @@ export default function SessionPage() {
 
           {/* ── Colonna centrale: Jitsi full + input in basso ── */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-
-              {/* Jitsi — occupa tutto tranne l'input */}
-              <div className="flex-1 relative min-h-0 overflow-hidden">
-                <div className="absolute inset-0">
-                  <JitsiMeet roomName={jitsiRoom} displayName={user?.displayName || "Recruiter"} />
-                </div>
-
-                {/* Link invito */}
-                <div className="absolute bottom-2 left-2 right-2 flex items-center gap-2 bg-gray-950/80 backdrop-blur rounded-lg px-3 py-1.5 z-10">
-                  <span className="text-xs text-gray-400 truncate flex-1">
-                    🔗 {jitsiUrl}
-                  </span>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(jitsiUrl)}
-                    className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors shrink-0 font-medium"
-                  >
-                    Copia link
-                  </button>
-                </div>
-              </div>
-
-              {/* Input — sempre visibile, non si restringe mai */}
+                  <div className="flex-1 relative min-h-0 overflow-hidden">
+                    {!sessionEnded ? (
+                      <div className="absolute inset-0">
+                        <JitsiMeet roomName={jitsiRoom} displayName={user?.displayName || "Recruiter"} />
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <p className="text-gray-600 text-sm">Sessione terminata — chiamata chiusa.</p>
+                      </div>
+                    )}
+                    {/* Link invito — solo se sessione attiva */}
+                    {!sessionEnded && (
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center gap-2 bg-gray-950/80 backdrop-blur rounded-lg px-3 py-1.5 z-10">
+                        <span className="text-xs text-gray-400 truncate flex-1">🔗 {jitsiUrl}</span>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(jitsiUrl)}
+                          className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors shrink-0 font-medium"
+                        >
+                          Copia link
+                        </button>
+                      </div>
+                    )}
+                  </div>
               {!sessionEnded ? (
                 <div className="border-t border-gray-800 px-6 py-3 shrink-0 space-y-2 bg-gray-950">
                   {lastSuggestion && (
@@ -333,7 +358,7 @@ export default function SessionPage() {
                         disabled={loadingQuestion}
                         className="bg-gray-800 hover:bg-gray-700 disabled:opacity-40 transition-colors px-4 py-2.5 rounded-lg text-sm font-medium"
                       >
-                        {loadingQuestion ? "..." : "🤖 Next Q"}
+                        {loadingQuestion ? "..." : "Genera domanda"}
                       </button>
                     </div>
                   </div>
@@ -395,19 +420,23 @@ export default function SessionPage() {
         </div>
       )}
       {questions.map((q) => (
-        <div
-          key={q.question_id}
-          className={`rounded-lg px-3 py-2.5 border text-xs leading-relaxed transition-colors
-            ${q.is_asked
-              ? "border-green-900 bg-green-900/10 text-gray-500"
-              : "border-gray-700 bg-gray-900 text-gray-300"}`}
-        >
-          {q.is_asked && (
-            <span className="text-green-500 font-medium block mb-0.5">✓ Fatta</span>
-          )}
-          <span>{q.question_text}</span>
-        </div>
-      ))}
+          <div
+            key={q.question_id}
+            onClick={() => !q.is_asked && !sessionEnded && handleMarkAsked(q.question_id)}
+            className={`rounded-lg px-3 py-2.5 border text-xs leading-relaxed transition-colors
+              ${q.is_asked
+                ? "border-green-500 bg-green-900/10 text-gray-500 cursor-default"
+                : "border-gray-700 bg-gray-900 text-gray-300 cursor-pointer hover:border-indigo-500"}`}
+          >
+            {q.is_asked && (
+              <span className="text-green-500 font-medium block mb-0.5">✓ Fatta</span>
+            )}
+            {!q.is_asked && !sessionEnded && (
+              <span className="text-gray-600 font-medium block mb-0.5 text-xs">Clicca per segnare come fatta</span>
+            )}
+            <span>{q.question_text}</span>
+          </div>
+        ))}
     </div>
   )}
 
@@ -486,6 +515,30 @@ export default function SessionPage() {
       </div>
 
       </div>
+      {showEndModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h2 className="text-lg font-semibold text-white">Termina sessione?</h2>
+            <p className="text-sm text-gray-400">
+              Assicurati di aver chiuso anche la chiamata Jitsi prima di terminare la sessione.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowEndModal(false)}
+                className="flex-1 bg-gray-800 hover:bg-gray-700 transition-colors px-4 py-2 rounded-lg text-sm"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={handleEnd}
+                className="flex-1 bg-red-700 hover:bg-red-600 transition-colors px-4 py-2 rounded-lg text-sm font-medium text-white"
+              >
+                Termina
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -943,7 +943,13 @@ class SessionRecapView(GenericAPIView):
                 return Response({"error": "Session not found"}, status=404)
 
         candidate_id, jd_id, status, started_at, ended_at = sess
-
+        with connection.cursor() as cur:
+            cur.execute(
+                'SELECT full_name FROM "CANDIDATI" WHERE id = %s',
+                [str(candidate_id)],
+            )
+            candidate_row = cur.fetchone()
+            candidate_name = candidate_row[0] if candidate_row else "Sconosciuto"
         # 2) CV attivo
         with connection.cursor() as cur:
             cur.execute(
@@ -975,6 +981,7 @@ class SessionRecapView(GenericAPIView):
             if not jd_row:
                 return Response({"error": "Job Description not found"}, status=404)
             jd_title, jd_text = jd_row
+
 
         # 4) Coverage (macro)
         with connection.cursor() as cur:
@@ -1011,6 +1018,7 @@ class SessionRecapView(GenericAPIView):
             )
             chunk_rows = cur.fetchall()
 
+
         top_chunks = [
             {
                 "chunk_id": r[0],
@@ -1039,6 +1047,7 @@ class SessionRecapView(GenericAPIView):
             {"author": r[0], "note_text": r[1], "created_at": r[2]}
             for r in note_rows
         ]
+
 
         # 7) Questions asked / unasked (session-scoped)
         with connection.cursor() as cur:
@@ -1130,6 +1139,8 @@ Produce un recap in ITALIANO con questo formato JSON (solo JSON, niente testo ex
                 "candidate_id": str(candidate_id),
                 "cv_id": str(cv_id),
                 "job_description_id": str(jd_id),
+                "jd_title": jd_title,
+                "candidate_name": candidate_name,
             },
             "coverage": {
                 "distance": round(distance, 6),
@@ -1393,3 +1404,16 @@ Le domande devono verificare se il candidato è adatto al ruolo specifico.
             ]
 
         return Response({"questions": questions, "count": len(questions)})
+
+class MarkQuestionAskedView(APIView):
+    def post(self, request, session_id, question_id):
+        with connection.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE "INTERVIEW_QUESTIONS"
+                SET asked_at = now(), asked_by = %s
+                WHERE id = %s AND session_id = %s
+                """,
+                [request.data.get("asked_by", ""), str(question_id), str(session_id)],
+            )
+        return Response({"status": "ok"})
