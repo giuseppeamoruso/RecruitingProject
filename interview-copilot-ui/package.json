@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-      "dev": "set NODE_OPTIONS=--max-old-space-size=4096 && next dev --turbopack",
-      "build": "set NODE_OPTIONS=--max-old-space-size=4096 && next build",
-      "start": "next start"
-    },
+  "dev": "next dev --turbopack",
+  "build": "next build",
+  "start": "next start"
+},
   "dependencies": {
     "firebase": "^12.9.0",
     "next": "16.1.6",
