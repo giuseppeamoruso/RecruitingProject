@@ -3,7 +3,6 @@ import uuid
 from typing import List, Tuple
 
 import pdfplumber
-from sentence_transformers import SentenceTransformer
 from supabase import create_client
 
 from django.db import connection, transaction
@@ -57,6 +56,7 @@ def _get_supabase():
 
 
 def process_and_store_cv(candidate_id: str, uploaded_file) -> dict:
+    from sentence_transformers import SentenceTransformer
     """
     Pipeline:
     1) Upload PDF -> Supabase Storage

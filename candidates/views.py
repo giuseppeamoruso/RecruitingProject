@@ -1,7 +1,7 @@
 import uuid
 
 from rest_framework import viewsets
-from sentence_transformers import SentenceTransformer
+
 from docx import Document as DocxDocument
 import io
 from .models import Candidato, CV, CVChunk, JobDescription, InterviewQuestion
@@ -19,7 +19,7 @@ from .serializers import (
     InterviewQuestionSerializer, LiveSuggestSerializer, StartSessionSerializer, AddNoteSerializer,
     NextQuestionSerializer, SessionQuestionCreateSerializer, MarkAskedSerializer, EndSessionSerializer
 )
-from sentence_transformers import SentenceTransformer
+
 from django.db import connection
 from pgvector.psycopg2 import register_vector
 
@@ -27,6 +27,7 @@ from .services.llm_service import generate_followup_question
 _embedding_model = None
 
 def get_embedding_model():
+    from sentence_transformers import SentenceTransformer
     global _embedding_model
     if _embedding_model is None:
         _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")

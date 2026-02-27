@@ -1,0 +1,11 @@
+django>=5.2
+djangorestframework
+django-cors-headers
+psycopg2-binary
+pgvector
+openai
+supabase
+pdfplumber
+python-docx
+python-dotenv
+gunicorn
